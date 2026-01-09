@@ -4,7 +4,7 @@ variable "cloud_id" {
 }
 variable "folder_id" { 
   type = string 
-  default = "b1gpjhi8dnsvkpo1hkd1"
+  default = "b1glnat8n1a6jgo3a6fs"
 }
 variable "zone" { 
   type = string

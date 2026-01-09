@@ -30,7 +30,7 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - cl1r7jbb3ho5b1ga8kpo-usix  # Замените на имя вашего узла
+                - cl1c0lsn9g05dli9at0a-ored  # Замените на имя вашего узла
 
 ---
 
@@ -57,4 +57,4 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - cl1r7jbb3ho5b1ga8kpo-utug  # Замените на имя вашего узла
+                - cl1c0lsn9g05dli9at0a-uvyw  # Замените на имя вашего узла

@@ -38,7 +38,7 @@ resource "yandex_vpc_route_table" "private" {
 
 module "kube" {
   source = "git::https://github.com/terraform-yc-modules/terraform-yc-kubernetes.git?ref=1.1.2"
-
+  cluster_name = "tsy-cluster"
   network_id = yandex_vpc_network.this.id
   enable_oslogin_or_ssh_keys = {
     enable-oslogin = "true"
@@ -59,15 +59,13 @@ module "kube" {
       duration   = "3h"
     }
   ]
-  node_groups_defaults = {
-    nat = false
-  }
+
   node_groups = {
     "yc-k8s-ng-01" = {
       description = "Kubernetes nodes group 01 with auto scaling"
-      node_cores      = 2
-      node_memory     = 2      
-      core_fraction   = 20
+      node_cores      = 4
+      node_memory     = 4      
+      nat             = "true"
 
       node_locations   = [
         {
