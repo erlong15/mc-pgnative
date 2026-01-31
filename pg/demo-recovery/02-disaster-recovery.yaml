@@ -1,0 +1,45 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-example
+spec:
+  instances: 2
+  
+  bootstrap:
+    recovery:
+      source: backup-source
+      database: app
+      owner: app
+      secret:
+        name: app-secret
+      recoveryTarget:
+        targetTime: "2026-01-31 09:07:00+00"
+
+  externalClusters:
+    - name: backup-source
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: yandex-backup-store
+          serverName: cluster-example
+
+  storage:
+    pvcTemplate:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+
+  postgresql:
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
+
+  plugins:
+  - name: barman-cloud.cloudnative-pg.io
+    isWALArchiver: true
+    parameters:
+      barmanObjectName: yandex-backup-store
+      serverName: cluster-example-dr-20260131

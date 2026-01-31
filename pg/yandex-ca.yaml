@@ -1,0 +1,10 @@
+# yc-storage-ca.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yc-storage-ca
+data:
+  ca.crt: |
+    -----BEGIN CERTIFICATE-----
+    # Ваш CA сертификат Yandex Cloud
+    -----END CERTIFICATE-----

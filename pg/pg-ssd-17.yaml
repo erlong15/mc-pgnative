@@ -1,0 +1,59 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: yandex-backup-store  # Придумайте имя
+  namespace: default         # Тот же namespace, что и у кластера
+spec:
+  configuration:
+    destinationPath: "s3://pg-backup-myproject-production/cluster-example/"
+    endpointURL: "https://storage.yandexcloud.net"
+    s3Credentials:
+      accessKeyId:
+        name: pg-backup-credentials
+        key: AWS_ACCESS_KEY_ID
+      secretAccessKey:
+        name: pg-backup-credentials
+        key: AWS_SECRET_ACCESS_KEY
+  # Политику хранения переносим сюда
+  retentionPolicy: "30d"  # Значение из spec.backup.retentionPolicy вашего кластера
+
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-example
+spec:
+  instances: 2
+  #imageName: ghcr.io/cloudnative-pg/postgresql:17.6-system-trixie
+  imageName: ghcr.io/cloudnative-pg/postgresql:18-minimal-trixie
+
+  primaryUpdateStrategy: unsupervised  # или supervised
+  primaryUpdateMethod: restart  # или switchover  
+  bootstrap:
+    initdb:
+      database: app
+      owner: app
+      secret:
+        name: app-secret
+
+  storage:
+    pvcTemplate:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+
+  postgresql:
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
+
+  plugins:
+  - name: barman-cloud.cloudnative-pg.io
+    isWALArchiver: true
+    parameters:
+      barmanObjectName: yandex-backup-store  # Имя ObjectStore из шага 1
+      
+      

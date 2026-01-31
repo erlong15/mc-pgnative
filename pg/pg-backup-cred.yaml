@@ -1,0 +1,13 @@
+# pg-backup-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pg-backup-credentials
+  namespace: default
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: "YCAJEcErjRPsBo8JMUQwTB29o"
+  AWS_SECRET_ACCESS_KEY: "YCMWX0TgB1Xx3xYBiOy8bQzzXLiq9yLc-IGvwP0W"
+  # Для других провайдеров:
+  # AWS_ENDPOINT: "https://storage.yandexcloud.net"
+  # AWS_REGION: "ru-central1"

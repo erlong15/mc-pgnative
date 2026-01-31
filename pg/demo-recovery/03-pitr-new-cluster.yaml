@@ -1,0 +1,46 @@
+# Point-in-Time Recovery (PITR) в новый кластер
+#
+# Этот манифест создаёт НОВЫЙ кластер рядом с существующим,
+# восстанавливая данные на указанную точку в прошлом.
+#
+# Используется для:
+# - Восстановления случайно удалённых данных
+# - Анализа состояния БД в прошлом
+# - Тестирования без влияния на продакшн
+#
+# ВАЖНО: Замените TARGET_TIME на нужную временную метку в формате RFC 3339
+#
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-example-pitr  # Новое имя кластера
+spec:
+  instances: 1  # Для демо достаточно 1 инстанса
+
+  bootstrap:
+    recovery:
+      source: backup-source
+      database: app
+      owner: app
+      secret:
+        name: app-secret
+      # Точка восстановления - ЗАМЕНИТЕ НА НУЖНОЕ ВРЕМЯ
+      recoveryTarget:
+        # Формат: "YYYY-MM-DD HH:MM:SS+TZ" или RFC 3339
+        targetTime: "2026-01-24 21:20:00+03"
+
+  externalClusters:
+    - name: backup-source
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: yandex-backup-store
+          serverName: cluster-example
+
+  storage:
+    pvcTemplate:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
