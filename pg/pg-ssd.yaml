@@ -1,22 +1,31 @@
----
-apiVersion: v1
-data:
-  username: YXBw
-  password: cGFzc3dvcmQ=
-kind: Secret
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
 metadata:
-  name: app-secret
-type: kubernetes.io/basic-auth
+  name: yandex-backup-store  # Придумайте имя
+  namespace: default         # Тот же namespace, что и у кластера
+spec:
+  configuration:
+    destinationPath: "s3://pg-backup-myproject-production/cluster-example/"
+    endpointURL: "https://storage.yandexcloud.net"
+    s3Credentials:
+      accessKeyId:
+        name: pg-backup-credentials
+        key: AWS_ACCESS_KEY_ID
+      secretAccessKey:
+        name: pg-backup-credentials
+        key: AWS_SECRET_ACCESS_KEY
+  # Политику хранения переносим сюда
+  retentionPolicy: "30d"  # Значение из spec.backup.retentionPolicy вашего кластера
 
 ---
-
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: cluster-example
 spec:
   instances: 2
-  
+  primaryUpdateStrategy: unsupervised  # или supervised
+  primaryUpdateMethod: restart  # или switchover  
   bootstrap:
     initdb:
       database: app
@@ -30,5 +39,18 @@ spec:
         - ReadWriteOnce
       resources:
         requests:
-          storage: 1Gi
+          storage: 2Gi
 
+  postgresql:
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
+
+  plugins:
+  - name: barman-cloud.cloudnative-pg.io
+    isWALArchiver: true
+    parameters:
+      barmanObjectName: yandex-backup-store  # Имя ObjectStore из шага 1
+      
+      

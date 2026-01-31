@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: cluster-example
+  name: cluster-example-pg
   labels:
     release: prom
 spec:
