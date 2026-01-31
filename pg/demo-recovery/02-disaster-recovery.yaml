@@ -43,4 +43,5 @@ spec:
     isWALArchiver: true
     parameters:
       barmanObjectName: yandex-backup-store
+      # должно отличаться от прежнего названия
       serverName: cluster-example-dr
